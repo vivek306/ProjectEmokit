@@ -1,0 +1,111 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="no-js">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>EMOKIT API SERVER</title>
+		<meta name="description" content="A page layout concept with a developer/designer theme and a special effect" />
+		<meta name="keywords" content="template, page layout, concept, developer, designer, portfolio, effect, animation, css, javascript" />
+		<meta name="author" content="Codrops" />
+		<link rel="shortcut icon" href="favicon.ico">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:400,500|Roboto+Mono" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="css/normalize.css" />
+		<link rel="stylesheet" type="text/css" href="css/demo.css" />
+		<link rel="stylesheet" type="text/css" href="css/pieces.css" />
+		<script>document.documentElement.className = 'js';</script>
+	</head>
+	<body>
+		<main>
+			<div class="pieces" style="background-image: url(img/normal.jpg)" data-img-alt="url(img/alt.jpg)" data-img-code="url(img/code.jpg)"></div>
+			<div class="overlay overlay--hidden"></div>
+			<div class="content">
+				<div class="content__inner">
+					<div class="content__top">
+						<h2 class="title">
+							<span class="title__inner mode mode--design" data-switch data-glitch>
+                                <span id="title_emokit">Loading...</span>
+                            </span>
+						</h2>
+						<div class="controls" style="display:none">
+                            <button class="btn btn--menu mode mode--design" data-switch>
+								<svg class="icon icon--menu"><use xlink:href="#icon-menu"></use></svg>
+								<svg class="icon icon--menu-alt"><use xlink:href="#icon-menu-alt"></use></svg>
+							</button>
+						</div>
+					</div>
+					<div class="menu">
+						<ul class="menu__inner">
+							<li class="menu__item"><a class="menu__link" data-switch>BY</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch href="https://github.com/vivek306">ViVeK</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch>Credits</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch href="">ILaYa</a></li>
+						</ul>
+					</div>
+					<div class="menu menu--code">
+						<ul class="menu__inner">
+							<li class="menu__item"><a class="menu__link" data-switch>> get call</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch>api/emokit - to get the status of the server</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch>> post calls</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch>api/emokit?option={value} - to set the emokit server</a></li>
+							<li class="menu__item"><a class="menu__link" data-switch>accepted values = init, start and stop</a></li>
+						</ul>
+					</div>
+					<div class="content__bottom">
+						<div class="switch mode mode--design">
+							<a class="switch__item switch__item--current">Authors</a>
+							<a class="switch__item"><span class="mode mode--design" data-switch data-glitch>APIs</span></a>
+						</div>
+						<div class="link-wrap">
+							<a class="contact-link mode mode--design" data-switch data-glitch>
+                                <span id="status_emokit"></span>
+                            </a>
+						</div>
+					</div>
+				</div><!-- /content__inner-->
+			</div><!-- /content -->
+			<div class="loading"></div>
+		</main>
+        <script src="Scripts/jquery-3.1.1.min.js"></script>
+        <script src="Scripts/jquery.signalR-2.2.2.min.js"></script>
+		<script src="js/imagesloaded.pkgd.min.js"></script>
+		<script src="js/anime.min.js"></script>
+		<script src="js/charming.min.js"></script>
+		<script src="js/main.js"></script>
+        <script type="text/javascript">
+            // Get the current URL
+            var url = window.location.protocol + "//" + window.location.host; // Returns path only
+
+            // Update the status on launch and check the API is working!
+            $.get(url + "/api/emokit", function (data) {
+                $("#title_emokit").text(data[0]);
+                $("#status_emokit").text(data[1]);
+            });
+
+            // Update the status real time and check the signalR is working!
+            var connection = $.hubConnection(url + '/signalr');
+
+            var hub = connection.createHubProxy('EmokitHub');
+
+            hub.on('OnProducerChanged', function (data) {
+                var status = "Emokit Service initialized";
+                switch (data) {
+                    case "init":
+                        $("#status_emokit").text(status + " and Emokit initialized");
+                        break;
+                    case "start":
+                        $("#status_emokit").text(status + " and Emokit started");
+                        break;
+                    case "stop":
+                        $("#status_emokit").text(status + " and Emokit stopped");
+                        break;
+                    default:
+                        break;
+                }
+            });
+
+            connection.start({ transport: 'longPolling' })
+                .done(function () { console.log('Now connected, connection ID=' + connection.id); })
+                .fail(function () { console.log('Could not connect'); });
+        </script>
+	</body>
+</html>
